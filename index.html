@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Open Shelf</title>
+<meta name="description" content="Free design tools, inspiration and a place to share work, for every VCD student on every device.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FAFAF7; --paper-2:#F0F0EA; --ink:#1C1D2B; --ink-2:#4E5163; --line:#1C1D2B;
+  --pink:#FF6FAE; --yellow:#FFD93D; --blue:#2F5FE8; --green:#2FBF7A; --orange:#FF7A33; --purple:#6C47E0;
+  --on-dark:#FFFFFF; --focus:#2F5FE8;
+  --font:"Bricolage Grotesque", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --wrap:1180px; --gutter:clamp(16px,4vw,40px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --paper:#15161F; --paper-2:#1E2030; --ink:#F2F2EC; --ink-2:#B7B9C7; --line:#F2F2EC; --focus:#FFD93D; }
+}
+:root[data-theme="dark"]{ --paper:#15161F; --paper-2:#1E2030; --ink:#F2F2EC; --ink-2:#B7B9C7; --line:#F2F2EC; --focus:#FFD93D; }
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font);font-size:17px;line-height:1.55;font-optical-sizing:auto;-webkit-font-smoothing:antialiased}
+img{max-width:100%}
+a{color:inherit;text-decoration-thickness:2px;text-underline-offset:3px}
+a:hover{text-decoration-color:var(--pink)}
+:focus-visible{outline:3px solid var(--focus);outline-offset:3px;border-radius:4px}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 var(--gutter)}
+.skip{position:absolute;left:-999px;top:8px;background:var(--ink);color:var(--paper);padding:8px 14px;border-radius:6px;z-index:10}
+.skip:focus{left:8px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Header */
+header.top{border-bottom:2px solid var(--line)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:64px;flex-wrap:wrap;padding-top:10px;padding-bottom:10px}
+.mark{display:flex;align-items:center;gap:10px;font-weight:800;font-size:22px;letter-spacing:-.02em;text-decoration:none}
+.mark-icon{display:flex;align-items:flex-end;gap:2px;height:26px}
+.mark-icon i{display:block;width:6px;border-radius:1px}
+.mark-icon i:nth-child(1){height:20px;background:var(--pink)}
+.mark-icon i:nth-child(2){height:26px;background:var(--blue)}
+.mark-icon i:nth-child(3){height:16px;background:var(--yellow)}
+.mark-icon i:nth-child(4){height:23px;background:var(--green);transform:rotate(-12deg);transform-origin:bottom left}
+nav.main ul{list-style:none;margin:0;padding:0;display:flex;gap:4px 18px;flex-wrap:wrap}
+nav.main a{text-decoration:none;font-weight:600;font-size:15px;padding:6px 0;border-bottom:2px solid transparent}
+nav.main a:hover{border-color:var(--pink)}
+
+/* Hero */
+.hero{padding:clamp(36px,7vw,80px) 0 0}
+.hero h1{font-size:clamp(40px,8.2vw,104px);line-height:.92;letter-spacing:-.045em;font-weight:800;margin:0;max-width:11ch}
+.hero h1 .hl{background:linear-gradient(transparent 58%, var(--yellow) 58%, var(--yellow) 92%, transparent 92%);padding:0 .04em}
+.hero p.lede{font-size:clamp(18px,2vw,21px);max-width:46ch;color:var(--ink-2);margin:22px 0 0}
+
+/* Filters */
+.controls{margin-top:36px;display:flex;flex-direction:column;gap:12px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:inherit;font-size:15px;font-weight:600;border:2px solid var(--line);background:transparent;color:var(--ink);border-radius:999px;padding:6px 14px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.chip .dot{width:10px;height:10px;border-radius:50%;border:1.5px solid var(--line)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.chip[aria-pressed="true"] .dot{border-color:var(--paper)}
+.toggles{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center}
+.toggle{display:inline-flex;gap:8px;align-items:center;font-weight:600;font-size:15px;cursor:pointer}
+.toggle input{width:20px;height:20px;accent-color:var(--blue);margin:0}
+.count{font-size:15px;color:var(--ink-2)}
+.swipe{display:none}
+@media (max-width:900px){.swipe{display:inline}}
+
+/* Shelf */
+.shelf-wrap{margin-top:22px;position:relative}
+.shelf{display:flex;align-items:flex-end;gap:6px;min-height:300px;padding:0 4px;overflow-x:auto;scroll-snap-type:x proximity;scrollbar-width:thin}
+.shelf::after{content:"";flex:0 0 8px}
+.plank{height:16px;background:var(--ink);border-radius:2px;margin-top:-1px;position:relative}
+.plank::after{content:"";position:absolute;left:0;right:0;top:16px;height:10px;background:repeating-linear-gradient(90deg,var(--ink) 0 2px,transparent 2px 8px);opacity:.18}
+.spine{flex:0 0 auto;scroll-snap-align:start;border:2px solid var(--line);border-bottom:0;border-radius:5px 5px 0 0;cursor:pointer;font:inherit;color:var(--ink);
+  display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:14px 0 10px;position:relative;
+  transition:transform .25s cubic-bezier(.2,.8,.2,1)}
+.spine:hover{transform:translateY(-10px)}
+.spine[aria-pressed="true"]{transform:translateY(-26px)}
+.spine .title{writing-mode:vertical-rl;transform:rotate(180deg);font-weight:800;font-size:18px;letter-spacing:-.01em;white-space:nowrap}
+.spine .band{display:block;align-self:stretch;height:8px;background:var(--ink);opacity:.9;flex:0 0 auto}
+.spine .band.b1{margin-bottom:12px}
+.spine .band.b2{height:3px;margin:10px 0 8px}
+.spine .title{flex:1 1 auto;display:flex;align-items:center;overflow:hidden}
+.spine .tags{display:flex;flex-direction:column;gap:4px;align-items:center}
+.spine .tag{width:22px;height:22px;border-radius:50%;background:var(--paper);border:1.5px solid var(--ink);display:grid;place-items:center}
+.spine .tag svg{width:13px;height:13px}
+.spine.dots{background-image:radial-gradient(rgba(28,29,43,.22) 1.2px, transparent 1.4px);background-size:7px 7px}
+.c-image{background-color:var(--pink)} .c-vector{background-color:var(--blue);color:#fff}
+.c-layout{background-color:var(--yellow)} .c-type{background-color:var(--orange)}
+.c-colour{background-color:var(--green)} .c-3d{background-color:var(--purple);color:#fff}
+.c-vector .band,.c-3d .band{background:#fff}
+.spine.c-vector, .spine.c-3d{border-color:var(--line)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:14px;font-size:14px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--ink);background:var(--paper);display:grid;place-items:center}
+.legend i svg{width:11px;height:11px}
+.empty{padding:40px 8px;color:var(--ink-2);font-size:18px;align-self:center}
+
+/* Card */
+.card{margin-top:28px;border:2px solid var(--line);border-radius:14px;padding:clamp(18px,3vw,30px);display:grid;grid-template-columns:1fr;gap:18px;background:var(--paper)}
+@media (min-width:760px){.card{grid-template-columns:1.2fr 1fr}}
+.card h3{font-size:clamp(28px,4vw,42px);line-height:1;letter-spacing:-.03em;margin:0 0 6px;font-weight:800}
+.card .kicker{font-weight:700;font-size:15px;display:inline-flex;align-items:center;gap:8px;margin-bottom:10px}
+.card .kicker i{width:14px;height:14px;border-radius:3px;border:1.5px solid var(--line)}
+.card p{margin:0 0 12px;max-width:60ch}
+.card dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:8px 16px;align-content:start;font-size:16px}
+.card dt{font-weight:700}
+.card dd{margin:0;color:var(--ink-2)}
+.btn{display:inline-flex;align-items:center;gap:8px;font:inherit;font-weight:700;font-size:16px;text-decoration:none;border:2px solid var(--line);border-radius:999px;padding:10px 18px;background:var(--ink);color:var(--paper);cursor:pointer}
+.btn:hover{background:var(--pink);color:var(--ink)}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.ghost:hover{background:var(--yellow)}
+
+/* Sections */
+section.block{padding:clamp(56px,9vw,104px) 0 0}
+.sec-head{display:grid;gap:10px;margin-bottom:28px;max-width:62ch}
+.sec-head h2{font-size:clamp(32px,5vw,58px);line-height:1;letter-spacing:-.035em;margin:0;font-weight:800}
+.sec-head p{margin:0;color:var(--ink-2);font-size:18px}
+
+/* Reading room */
+.room{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.ref{border:2px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:8px;text-decoration:none;position:relative;min-height:190px;transition:transform .2s}
+.ref:hover{transform:rotate(-1deg) translateY(-3px)}
+.ref:nth-child(3n+2):hover{transform:rotate(1deg) translateY(-3px)}
+.ref h3{margin:0;font-size:22px;letter-spacing:-.02em;line-height:1.1}
+.ref p{margin:0;color:var(--ink-2);font-size:16px}
+.ref .meta{margin-top:auto;display:flex;flex-wrap:wrap;gap:6px}
+.pill{font-size:13px;font-weight:700;border:1.5px solid var(--line);border-radius:999px;padding:2px 10px}
+.pill.y{background:var(--yellow);color:#1C1D2B;border-color:#1C1D2B}
+.pill.g{background:var(--green);color:#1C1D2B;border-color:#1C1D2B}
+.ref .by{font-size:13px;color:var(--ink-2)}
+
+/* QOTW */
+.qotw{display:grid;gap:22px}
+@media (min-width:900px){.qotw{grid-template-columns:1.35fr 1fr;align-items:start}}
+.bubble{background:var(--yellow);color:#1C1D2B;border:2px solid #1C1D2B;border-radius:22px 22px 22px 4px;padding:clamp(20px,3vw,32px)}
+.bubble .q{font-size:clamp(24px,3.4vw,36px);line-height:1.08;letter-spacing:-.025em;font-weight:800;margin:0 0 6px}
+.bubble .asked{font-size:14px;margin:0;font-weight:600}
+.answer{border:2px solid var(--line);border-top:0;border-radius:0 0 16px 16px;padding:22px clamp(20px,3vw,32px) 24px;margin:-14px 6px 0;background:var(--paper)}
+.answer ol{margin:8px 0 0;padding-left:22px}
+.answer li{margin-bottom:6px}
+.answer .who{font-size:14px;color:var(--ink-2);margin:12px 0 0}
+.side h3{font-size:20px;margin:0 0 10px;letter-spacing:-.01em}
+details{border-bottom:2px solid var(--line);padding:12px 0}
+details:first-of-type{border-top:2px solid var(--line)}
+summary{cursor:pointer;font-weight:700;list-style:none;display:flex;justify-content:space-between;gap:12px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";font-size:22px;line-height:1}
+details[open] summary::after{content:"−"}
+details p{margin:10px 0 2px;color:var(--ink-2)}
+.ask{margin-top:20px;padding:18px;border-radius:14px;background:var(--paper-2)}
+.ask p{margin:0 0 12px;font-size:16px}
+.note{font-size:14px;color:var(--ink-2);margin:10px 0 0}
+
+/* Wall */
+.wall-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:18px}
+.consent{display:inline-flex;align-items:center;gap:10px;font-size:15px;font-weight:600;border:2px dashed var(--line);border-radius:12px;padding:8px 14px}
+.wall{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px}
+figure.work{margin:0}
+.poster{aspect-ratio:3/4;border:2px solid var(--line);border-radius:6px;overflow:hidden;position:relative;color:#1C1D2B}
+figure.work figcaption{margin-top:8px;font-size:15px;display:flex;justify-content:space-between;gap:8px}
+figure.work figcaption b{font-weight:700}
+figure.work figcaption span{color:var(--ink-2)}
+/* sample posters, pure CSS */
+.p1{background:var(--yellow)}
+.p1 .a{position:absolute;inset:auto -20% -25% -20%;height:70%;border-radius:50%;background:var(--pink);mix-blend-mode:multiply}
+.p1 .t{position:absolute;left:12px;top:10px;font-weight:800;font-size:58px;line-height:.85;letter-spacing:-.06em}
+.p2{background:#1C1D2B;color:#FAFAF7}
+.p2 .t{position:absolute;inset:14px;font-weight:800;font-size:30px;line-height:.95;letter-spacing:-.03em;writing-mode:vertical-rl;transform:rotate(180deg)}
+.p2 .a{position:absolute;right:14px;bottom:14px;width:46%;aspect-ratio:1;background:var(--green);border-radius:50% 50% 0 50%}
+.p3{background:#FAFAF7;background-image:radial-gradient(var(--blue) 2.2px,transparent 2.4px);background-size:12px 12px}
+.p3 .t{position:absolute;left:12px;right:12px;bottom:12px;background:#FAFAF7;border:2px solid #1C1D2B;padding:8px;font-weight:800;font-size:22px;line-height:1}
+.p4{background:var(--orange)}
+.p4 .a{position:absolute;left:12%;top:12%;width:76%;height:56%;border:10px solid #1C1D2B;border-radius:50% 50% 0 0}
+.p4 .t{position:absolute;left:12px;bottom:10px;font-weight:800;font-size:34px;letter-spacing:-.04em}
+.p5{background:var(--blue);color:#fff}
+.p5 .t{position:absolute;left:12px;top:12px;font-weight:800;font-size:76px;line-height:.8;letter-spacing:-.07em}
+.p5 .a{position:absolute;right:-14%;bottom:-8%;width:80%;aspect-ratio:1;background:var(--yellow);clip-path:polygon(50% 0,100% 100%,0 100%);mix-blend-mode:normal}
+.p6{background:var(--green)}
+.p6 .t{position:absolute;inset:0;display:grid;place-items:center;font-weight:800;font-size:28px;text-align:center;line-height:1}
+.p6 .a{position:absolute;inset:16px;border:2px solid #1C1D2B;border-radius:50%}
+
+/* How it's run */
+.run{display:grid;gap:22px}
+@media (min-width:900px){.run{grid-template-columns:1fr 1fr}}
+.panel{border:2px solid var(--line);border-radius:14px;padding:clamp(20px,3vw,28px)}
+.panel h3{margin:0 0 12px;font-size:22px;letter-spacing:-.02em}
+ul.checks{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+ul.checks li{display:grid;grid-template-columns:26px 1fr;gap:10px;align-items:start}
+ul.checks svg{width:24px;height:24px;margin-top:1px}
+.roles{display:grid;gap:14px}
+.role{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:start}
+.role .badge{grid-row:span 2;width:44px;height:44px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-weight:800}
+.role b{font-size:17px}
+.role span{color:var(--ink-2);font-size:16px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-top:22px}
+.fact{background:var(--paper-2);border-radius:12px;padding:16px}
+.fact b{display:block;font-size:30px;letter-spacing:-.03em;line-height:1}
+.fact span{font-size:15px;color:var(--ink-2)}
+
+footer{margin-top:clamp(64px,10vw,120px);border-top:2px solid var(--line);padding:24px 0 40px;font-size:15px;color:var(--ink-2)}
+footer .wrap{display:flex;flex-wrap:wrap;gap:10px 24px;justify-content:space-between}
+
+@media (max-width:600px){
+  body{font-size:16px}
+  .shelf{min-height:250px}
+  .spine .title{font-size:17px}
+}
+@media (prefers-reduced-motion: reduce){
+  *{transition:none!important;scroll-behavior:auto!important}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#shelf">Skip to the tools</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="mark" href="#top" aria-label="Open Shelf home">
+      <span class="mark-icon" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      Open Shelf
+    </a>
+    <nav class="main" aria-label="Sections">
+      <ul>
+        <li><a href="#shelf">The Shelf</a></li>
+        <li><a href="#reading-room">Reading Room</a></li>
+        <li><a href="#question">Question of the Week</a></li>
+        <li><a href="#wall">The Wall</a></li>
+        <li><a href="#how">How it's run</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <div class="wrap">
+    <section class="hero" aria-labelledby="hero-title">
+      <h1 id="hero-title">Free tools for <span class="hl">every</span> device in the room.</h1>
+      <p class="lede">The VCD department's library of free design tools, inspiration and student work. Everything on the shelf runs in a browser, on the lowest-spec laptop we have.</p>
+    </section>
+
+    <section id="shelf" aria-labelledby="shelf-title" style="padding-top:8px">
+      <h2 id="shelf-title" class="sr">The Shelf</h2>
+      <div class="controls">
+        <div class="chips" role="group" aria-label="Filter by task" id="taskChips"></div>
+        <div class="toggles">
+          <label class="toggle"><input type="checkbox" id="fPhone"> Works on a phone</label>
+          <label class="toggle"><input type="checkbox" id="fNoAcct"> No account needed</label>
+          <span class="count" id="count" aria-live="polite"></span><span class="count swipe">Swipe the shelf for more</span>
+        </div>
+      </div>
+
+      <div class="shelf-wrap">
+        <div class="shelf" id="shelfRow" role="group" aria-label="Tools. Choose a spine to see details."></div>
+        <div class="plank" aria-hidden="true"></div>
+      </div>
+      <div class="legend" aria-hidden="true">
+        <span><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg></i> Works on a phone</span>
+        <span><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg></i> No account needed</span>
+        <span><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/></svg></i> School sign-in</span>
+        <span><i style="font-size:11px;font-weight:800">@</i> Free account needed</span>
+      </div>
+
+      <article class="card" id="card" aria-live="polite"></article>
+    </section>
+
+    <section class="block" id="reading-room" aria-labelledby="rr-title">
+      <div class="sec-head">
+        <h2 id="rr-title">Reading Room</h2>
+        <p>Good design you can see for free. Collections, archives and studios picked by the student panel, with places in Melbourne you can visit without paying.</p>
+      </div>
+      <div class="room">
+        <a class="ref" href="https://www.ngv.vic.gov.au/explore/collection/" target="_blank" rel="noopener">
+          <h3>NGV Collection</h3>
+          <p>Posters, prints and design objects from the National Gallery of Victoria, searchable online.</p>
+          <div class="meta"><span class="pill y">Free to visit in Melbourne</span><span class="pill">Posters</span></div>
+          <span class="by">Picked by the student panel</span>
+        </a>
+        <a class="ref" href="https://collection.powerhouse.com.au/" target="_blank" rel="noopener">
+          <h3>Powerhouse Collection</h3>
+          <p>Australian design history, from packaging and type to furniture and fashion.</p>
+          <div class="meta"><span class="pill">Australian design</span><span class="pill">Objects</span></div>
+          <span class="by">Picked by the student panel</span>
+        </a>
+        <a class="ref" href="https://oa.letterformarchive.org/" target="_blank" rel="noopener">
+          <h3>Letterform Archive Online</h3>
+          <p>Thousands of scans of lettering, type specimens and graphic design you can zoom right into.</p>
+          <div class="meta"><span class="pill">Type</span><span class="pill">Archive</span></div>
+          <span class="by">Picked by the student panel</span>
+        </a>
+        <a class="ref" href="https://fontsinuse.com/" target="_blank" rel="noopener">
+          <h3>Fonts In Use</h3>
+          <p>Real-world examples of typefaces on posters, books and brands. Great for type pairing ideas.</p>
+          <div class="meta"><span class="pill">Type</span><span class="pill">Examples</span></div>
+          <span class="by">Picked by the student panel</span>
+        </a>
+        <a class="ref" href="https://www.slv.vic.gov.au/" target="_blank" rel="noopener">
+          <h3>State Library Victoria</h3>
+          <p>Free design books, magazines and a quiet place to work, with Wi-Fi and computers.</p>
+          <div class="meta"><span class="pill y">Free to visit in Melbourne</span><span class="pill g">Free Wi-Fi</span></div>
+          <span class="by">Picked by the student panel</span>
+        </a>
+        <a class="ref" href="https://agda.com.au/" target="_blank" rel="noopener">
+          <h3>AGDA</h3>
+          <p>The Australian Graphic Design Association. See award-winning work from designers working here now.</p>
+          <div class="meta"><span class="pill">Australian design</span><span class="pill">Careers</span></div>
+          <span class="by">Picked by the student panel</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="block" id="question" aria-labelledby="q-title">
+      <div class="sec-head">
+        <h2 id="q-title">Question of the Week</h2>
+        <p>Ask anything about design, anonymously. Each week the student panel picks one and the VCD team answers it here.</p>
+      </div>
+      <div class="qotw">
+        <div>
+          <div class="bubble">
+            <p class="q">How do I make my poster look less "default"?</p>
+            <p class="asked">Asked anonymously by a Year 9 student · Week 3, Term 4</p>
+          </div>
+          <div class="answer">
+            <p style="margin:0">Great question. Most "default" looks come from using every option at once. Try limiting yourself:</p>
+            <ol>
+              <li><b>One typeface, two weights.</b> Let size and weight do the work, not five fonts.</li>
+              <li><b>Make one thing huge.</b> Decide what someone should see first and scale it up until it feels too big.</li>
+              <li><b>Three colours, maximum.</b> Pull them from a photo or a palette on Coolors.</li>
+              <li><b>Use the edges.</b> Align everything to a margin. Centring everything is the fastest way to look default.</li>
+            </ol>
+            <p class="who">Answered by the VCD team</p>
+          </div>
+        </div>
+        <div class="side">
+          <h3>Earlier questions</h3>
+          <details>
+            <summary>Can I use Google Fonts in my folio?</summary>
+            <p>Yes. They're open-licence, so they're free to use. Write down where each font came from in your folio, the same way you'd note any image source.</p>
+          </details>
+          <details>
+            <summary>Photopea keeps freezing on my laptop. Help?</summary>
+            <p>Work at a smaller size while you're drafting, merge layers you've finished with, and close other tabs. Save the full-size version for your final export, on a school laptop if you need to.</p>
+          </details>
+          <details>
+            <summary>Where do designers get ideas from?</summary>
+            <p>Mostly from looking at a lot of things. Start in the Reading Room, save what you like, and write one sentence about why each one works.</p>
+          </details>
+          <div class="ask">
+            <p>Got a question? Nobody sees your name, not even the panel.</p>
+            <button class="btn" type="button" id="askBtn">Ask a question</button>
+            <p class="note" id="askNote" hidden>In the live site this opens a school Google Form with no name field. Sign-in is through your school account, so only Northvale students can submit.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="block" id="wall" aria-labelledby="wall-title">
+      <div class="sec-head">
+        <h2 id="wall-title">The Wall</h2>
+        <p>Term 4 theme: <b>type as image</b>. Work shared here is opt-in, shown with first names or initials only, and checked by a teacher before it goes up.</p>
+      </div>
+      <div class="wall-bar">
+        <span class="consent">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+          Visible to Northvale students and staff only
+        </span>
+        <span class="note" style="margin:0">Sample artworks for this prototype</span>
+      </div>
+      <div class="wall">
+        <figure class="work"><div class="poster p1" role="img" aria-label="Poster: the word Loud in black over a yellow background with a pink circle"><div class="a"></div><div class="t">LOUD<br>ER</div></div><figcaption><b>Louder</b><span>T.N. · Year 10</span></figcaption></figure>
+        <figure class="work"><div class="poster p2" role="img" aria-label="Poster: vertical white lettering on navy with a green leaf shape"><div class="t">Merri Creek walks</div><div class="a"></div></div><figcaption><b>Merri Creek walks</b><span>Amira · Year 9</span></figcaption></figure>
+        <figure class="work"><div class="poster p3" role="img" aria-label="Poster: blue halftone dots with a white label reading Signal and noise"><div class="t">Signal &amp; noise</div></div><figcaption><b>Signal &amp; noise</b><span>J.K. · Year 11</span></figcaption></figure>
+        <figure class="work"><div class="poster p4" role="img" aria-label="Poster: orange background with a black arch outline above the word Arch"><div class="a"></div><div class="t">arch.</div></div><figcaption><b>arch.</b><span>Sam · Year 9</span></figcaption></figure>
+        <figure class="work"><div class="poster p5" role="img" aria-label="Poster: huge white letters Aa on blue with a yellow triangle"><div class="t">Aa</div><div class="a"></div></div><figcaption><b>Aa</b><span>P.L. · Year 12</span></figcaption></figure>
+        <figure class="work"><div class="poster p6" role="img" aria-label="Poster: the words Slow down inside a black circle outline on green"><div class="a"></div><div class="t">slow<br>down</div></div><figcaption><b>Slow down</b><span>Leo · Year 10</span></figcaption></figure>
+      </div>
+      <div style="margin-top:22px;display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn ghost" type="button" id="shareBtn">Share your work</button>
+      </div>
+      <p class="note" id="shareNote" hidden>In the live site this opens a school Google Form. Students upload work and tick that they and a parent or carer agree to it being shown. A teacher checks every piece before it goes up.</p>
+    </section>
+
+    <section class="block" id="how" aria-labelledby="how-title">
+      <div class="sec-head">
+        <h2 id="how-title">How it's run</h2>
+        <p>Owned by the VCD department, curated with students. Here's how a tool gets onto the shelf, and who keeps it working.</p>
+      </div>
+      <div class="run">
+        <div class="panel">
+          <h3>Every tool must pass all five</h3>
+          <ul class="checks">
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="var(--green)" stroke="currentColor" stroke-width="2"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#1C1D2B" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b>Free</b> for students, or covered by a school licence.</span></li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="var(--green)" stroke="currentColor" stroke-width="2"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#1C1D2B" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b>Runs in a browser</b> on our lowest-spec school laptop. No installs.</span></li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="var(--green)" stroke="currentColor" stroke-width="2"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#1C1D2B" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b>Safe to sign up for.</b> No account, or school sign-in, or terms checked for age and data.</span></li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="var(--green)" stroke="currentColor" stroke-width="2"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#1C1D2B" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b>Legal.</b> No piracy, ripping or cracked software, ever.</span></li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="var(--green)" stroke="currentColor" stroke-width="2"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#1C1D2B" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b>Checked every term.</b> Links tested and the date shown on each tool.</span></li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h3>Who does what</h3>
+          <div class="roles">
+            <div class="role"><span class="badge" style="background:var(--yellow);color:#1C1D2B">T</span><b>VCD teacher</b><span>Owns the site, approves every tool and post, answers questions.</span></div>
+            <div class="role"><span class="badge" style="background:var(--pink);color:#1C1D2B">P</span><b>Student panel</b><span>Six students across Years 9 to 12. Nominates tools, tests links each term, picks the Question of the Week.</span></div>
+            <div class="role"><span class="badge" style="background:var(--green);color:#1C1D2B">E</span><b>Everyone</b><span>Suggest a tool, ask a question, share work, or report a broken link.</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="facts">
+        <div class="fact"><b>$0</b><span>hosting, on the school's own systems</span></div>
+        <div class="fact"><b id="toolTotal">18</b><span>tools on the shelf</span></div>
+        <div class="fact"><b id="weight">40 KB</b><span>for the whole page, plus one font, so it loads on slow Wi-Fi</span></div>
+        <div class="fact"><b>Term 4</b><span>last full review</span></div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Open Shelf · Northvale Secondary College VCD (pseudonym)</span>
+    <span>Prototype by Jay Wroe-Johnson for TCHE2712. Tool details current as of October 2026; the student panel re-checks them each term.</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var ICON = {
+    phone:'<svg viewBox="0 0 24 24" fill="none" stroke="#1C1D2B" stroke-width="2.4" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg>',
+    open:'<svg viewBox="0 0 24 24" fill="none" stroke="#1C1D2B" stroke-width="2.4" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg>',
+    school:'<svg viewBox="0 0 24 24" fill="none" stroke="#1C1D2B" stroke-width="2.4" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/></svg>'
+  };
+  var CATS = {
+    image:{label:"Image editing",cls:"c-image",col:"var(--pink)"},
+    vector:{label:"Vector",cls:"c-vector",col:"var(--blue)"},
+    layout:{label:"Layout",cls:"c-layout",col:"var(--yellow)"},
+    type:{label:"Type",cls:"c-type",col:"var(--orange)"},
+    colour:{label:"Colour",cls:"c-colour",col:"var(--green)"},
+    "3d":{label:"3D & motion",cls:"c-3d",col:"var(--purple)"}
+  };
+  // account: "none" | "school" | "free"
+  var TOOLS = [
+    {n:"Photopea",c:"image",url:"https://www.photopea.com/",rep:"Photoshop",acct:"none",phone:false,
+     d:"A full photo editor in your browser, with layers, masks and PSD files. Free with ads.",use:"Photo editing, mock-ups, opening .psd files"},
+    {n:"Piskel",c:"image",url:"https://www.piskelapp.com/",rep:"Pixel art apps",acct:"none",phone:false,
+     d:"Draw pixel art and simple frame animations, then export a GIF or sprite sheet.",use:"Icons, pixel art, short animations"},
+    {n:"Unsplash",c:"image",url:"https://unsplash.com/",rep:"Stock photo sites",acct:"none",phone:true,
+     d:"High-quality photos you can download and use for free. Note the photographer in your folio.",use:"Reference images, backgrounds, mock-ups"},
+    {n:"Vectorpea",c:"vector",url:"https://www.vectorpea.com/",rep:"Illustrator",acct:"none",phone:false,
+     d:"A free vector editor from the makers of Photopea. Opens SVG, AI and PDF files.",use:"Logos, icons, illustration"},
+    {n:"Graphite",c:"vector",url:"https://graphite.rs/",rep:"Illustrator",acct:"none",phone:false,
+     d:"An open-source vector and image editor that runs in the browser. Still in development, so save often.",use:"Vector shapes, experimental graphics"},
+    {n:"SVG-Edit",c:"vector",url:"https://svgedit.netlify.app/editor/index.html",rep:"Illustrator (basic)",acct:"none",phone:false,
+     d:"A simple, open-source SVG editor. Light enough for the oldest laptops.",use:"Simple icons, quick vector edits"},
+    {n:"Figma",c:"layout",url:"https://www.figma.com/education/",rep:"InDesign / XD",acct:"free",phone:false,
+     d:"Industry-standard design and prototyping. Free education plan for students and teachers.",use:"Layouts, app screens, prototypes"},
+    {n:"Penpot",c:"layout",url:"https://penpot.app/",rep:"Figma / XD",acct:"free",phone:false,
+     d:"An open-source alternative to Figma. Free to use, with no paid tier needed.",use:"Layouts, app screens, prototypes"},
+    {n:"Canva for Education",sl:"Canva",c:"layout",url:"https://www.canva.com/education/",rep:"InDesign (quick layouts)",acct:"school",phone:true,
+     d:"Free for school students through your teacher's class. Good for fast layouts and presentations.",use:"Posters, presentations, quick layouts"},
+    {n:"Adobe Express",c:"layout",url:"https://www.adobe.com/express/",rep:"InDesign / Spark",acct:"school",phone:true,
+     d:"Adobe's browser design tool, available through the Department licence with your school account.",use:"Social posts, flyers, quick layouts"},
+    {n:"Excalidraw",c:"layout",url:"https://excalidraw.com/",rep:"Sketching on paper",acct:"none",phone:true,
+     d:"A hand-drawn style whiteboard for wireframes and early ideas. Share a link to sketch together.",use:"Thumbnails, wireframes, brainstorming"},
+    {n:"Google Fonts",c:"type",url:"https://fonts.google.com/",rep:"Paid font libraries",acct:"none",phone:true,
+     d:"Hundreds of open-licence typefaces, free to download and use in any project.",use:"Choosing and pairing typefaces"},
+    {n:"Fontshare",c:"type",url:"https://www.fontshare.com/",rep:"Paid font libraries",acct:"none",phone:true,
+     d:"A free collection of quality typefaces from the Indian Type Foundry.",use:"Distinctive display and text faces"},
+    {n:"Coolors",c:"colour",url:"https://coolors.co/",rep:"Colour swatch books",acct:"none",phone:true,
+     d:"Generate, lock and tweak colour palettes, or pull a palette from a photo.",use:"Colour palettes, checking contrast"},
+    {n:"Adobe Color",c:"colour",url:"https://color.adobe.com/",rep:"Colour wheels",acct:"none",phone:true,
+     d:"Build palettes using colour harmony rules and check them for accessibility.",use:"Colour theory, harmony, contrast"},
+    {n:"Spline",c:"3d",url:"https://spline.design/",rep:"Cinema 4D / Blender",acct:"free",phone:false,
+     d:"Make 3D shapes, scenes and simple interactions in the browser. Free plan available.",use:"3D renders, product concepts"},
+    {n:"Tinkercad",c:"3d",url:"https://www.tinkercad.com/",rep:"CAD software",acct:"school",phone:false,
+     d:"Simple 3D modelling from Autodesk. Teachers can set up class sign-ins without student emails.",use:"Product models, packaging forms"},
+    {n:"Jitter",c:"3d",url:"https://jitter.video/",rep:"After Effects",acct:"free",phone:false,
+     d:"Animate type and shapes in the browser and export video or GIF. Free plan available.",use:"Motion graphics, animated type"}
+  ];
+  var ACCT = {none:"No account needed",school:"School sign-in",free:"Free account needed"};
+
+  var state = {cat:"all", phone:false, open:false, sel:null};
+  var row = document.getElementById("shelfRow"), card = document.getElementById("card"),
+      chips = document.getElementById("taskChips"), count = document.getElementById("count");
+
+  // chips
+  var chipDefs = [{k:"all",label:"All tools"}].concat(Object.keys(CATS).map(function(k){return {k:k,label:CATS[k].label,col:CATS[k].col};}));
+  chipDefs.forEach(function(c){
+    var b = document.createElement("button");
+    b.type="button"; b.className="chip"; b.dataset.k=c.k;
+    b.setAttribute("aria-pressed", c.k==="all" ? "true" : "false");
+    b.innerHTML = (c.col ? '<span class="dot" style="background:'+c.col+'"></span>' : '') + c.label;
+    b.addEventListener("click", function(){ state.cat=c.k; render(); });
+    chips.appendChild(b);
+  });
+  document.getElementById("fPhone").addEventListener("change", function(e){ state.phone=e.target.checked; render(); });
+  document.getElementById("fNoAcct").addEventListener("change", function(e){ state.open=e.target.checked; render(); });
+
+  function hash(s){ var h=0; for(var i=0;i<s.length;i++){ h=(h*31+s.charCodeAt(i))|0; } return Math.abs(h); }
+
+  function render(){
+    Array.prototype.forEach.call(chips.children, function(b){ b.setAttribute("aria-pressed", b.dataset.k===state.cat ? "true":"false"); });
+    var list = TOOLS.filter(function(t){
+      return (state.cat==="all"||t.c===state.cat) && (!state.phone||t.phone) && (!state.open||t.acct==="none");
+    });
+    row.innerHTML="";
+    if(!list.length){
+      row.innerHTML='<p class="empty">No tools match those filters yet. Untick one, or suggest a tool to the panel.</p>';
+    }
+    list.forEach(function(t){
+      var h = hash(t.n);
+      var b = document.createElement("button");
+      b.type="button";
+      b.className = "spine " + CATS[t.c].cls + (h%3===0 ? " dots":"");
+      var label = t.sl || t.n;
+      b.style.height = Math.max(220 + h%70, 150 + label.length*11 + (t.phone?26:0)) + "px";
+      b.style.width = (44 + h%16) + "px";
+      b.setAttribute("aria-pressed", state.sel===t.n ? "true":"false");
+      b.setAttribute("aria-label", t.n + ", " + CATS[t.c].label + ", replaces " + t.rep + ". " + ACCT[t.acct] + (t.phone ? ". Works on a phone." : "."));
+      var tags = '<span class="tag" title="'+ACCT[t.acct]+'">' + (t.acct==="none"?ICON.open:(t.acct==="school"?ICON.school:'<span style="font-size:11px;font-weight:800;color:#1C1D2B">@</span>')) + '</span>';
+      if(t.phone) tags = '<span class="tag" title="Works on a phone">'+ICON.phone+'</span>' + tags;
+      b.innerHTML = '<span class="band b1" aria-hidden="true"></span><span class="title" aria-hidden="true">'+label+'</span><span class="band b2" aria-hidden="true"></span><span class="tags" aria-hidden="true">'+tags+'</span>';
+      b.addEventListener("click", function(){ state.sel=t.n; render(); });
+      row.appendChild(b);
+    });
+    count.textContent = list.length + (list.length===1?" tool":" tools");
+    var sel = list.filter(function(t){return t.n===state.sel;})[0] || list[0];
+    if(sel && !state.sel){ /* show first without marking pulled */ }
+    showCard(sel);
+  }
+
+  function showCard(t){
+    if(!t){ card.innerHTML='<p style="margin:0">Pick a spine to see what the tool does.</p>'; return; }
+    card.innerHTML =
+      '<div><span class="kicker"><i style="background:'+CATS[t.c].col+'"></i>'+CATS[t.c].label+'</span>'+
+      '<h3>'+t.n+'</h3><p>'+t.d+'</p>'+
+      '<a class="btn" href="'+t.url+'" target="_blank" rel="noopener">Open '+t.n+'<span class="sr"> (opens in a new tab)</span></a></div>'+
+      '<dl><dt>Instead of</dt><dd>'+t.rep+'</dd><dt>Good for</dt><dd>'+t.use+'</dd>'+
+      '<dt>Account</dt><dd>'+ACCT[t.acct]+'</dd><dt>On a phone</dt><dd>'+(t.phone?"Works well":"Use a laptop")+'</dd>'+
+      '<dt>Cost</dt><dd>Free</dd><dt>Last checked</dt><dd>Term 4, 2026</dd></dl>';
+  }
+
+  document.getElementById("askBtn").addEventListener("click", function(){ document.getElementById("askNote").hidden=false; });
+  document.getElementById("shareBtn").addEventListener("click", function(){ document.getElementById("shareNote").hidden=false; });
+  document.getElementById("toolTotal").textContent = TOOLS.length;
+  render();
+})();
+</script>
+</body>
+</html>
