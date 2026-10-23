@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Open Shelf</title>
 <meta name="description" content="Free design tools, inspiration and a place to share work, for every VCD student on every device.">
+<script>try{var t=localStorage.getItem("os-theme");if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&display=swap" rel="stylesheet">
@@ -16,7 +17,10 @@
   --on-dark:#FFFFFF; --focus:#2F5FE8;
   --font:"Bricolage Grotesque", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --wrap:1180px; --gutter:clamp(16px,4vw,40px);
+  color-scheme:light dark;
 }
+:root[data-theme="light"]{color-scheme:light}
+:root[data-theme="dark"]{color-scheme:dark}
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){ --paper:#15161F; --paper-2:#1E2030; --ink:#F2F2EC; --ink-2:#B7B9C7; --line:#F2F2EC; --focus:#FFD93D; }
 }
@@ -237,6 +241,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:10px 24px;justify-content:space-bet
         <li><a href="#how">How it's run</a></li>
       </ul>
     </nav>
+    <button class="chip" type="button" id="themeBtn" aria-pressed="false">Dark mode</button>
   </div>
 </header>
 
@@ -259,7 +264,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:10px 24px;justify-content:space-bet
       </div>
 
       <div class="shelf-wrap">
-        <div class="shelf" id="shelfRow" role="group" aria-label="Tools. Choose a spine to see details."></div>
+        <div class="shelf" id="shelfRow" role="toolbar" aria-label="Tools. Use the arrow keys to move along the shelf, then Enter to see details."></div>
         <div class="plank" aria-hidden="true"></div>
       </div>
       <div class="legend" aria-hidden="true">
@@ -422,7 +427,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:10px 24px;justify-content:space-bet
       <div class="facts">
         <div class="fact"><b>$0</b><span>hosting, on the school's own systems</span></div>
         <div class="fact"><b id="toolTotal">18</b><span>tools on the shelf</span></div>
-        <div class="fact"><b id="weight">40 KB</b><span>for the whole page, plus one font, so it loads on slow Wi-Fi</span></div>
+        <div class="fact"><b id="weight">43 KB</b><span>for the whole page, plus one font, so it loads on slow Wi-Fi</span></div>
         <div class="fact"><b>Term 4</b><span>last full review</span></div>
       </div>
     </section>
@@ -451,43 +456,43 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:10px 24px;justify-content:space-bet
     colour:{label:"Colour",cls:"c-colour",col:"var(--green)"},
     "3d":{label:"3D & motion",cls:"c-3d",col:"var(--purple-soft)"}
   };
-  // account: "none" | "school" | "free"
+  // account: "none" | "school" | "free"; chk: when the student panel last tested the link and tags
   var TOOLS = [
-    {n:"Photopea",c:"image",url:"https://www.photopea.com/",rep:"Photoshop",acct:"none",phone:false,
+    {n:"Photopea",c:"image",url:"https://www.photopea.com/",rep:"Photoshop",acct:"none",phone:false,chk:"Term 4, 2026",
      d:"A full photo editor in your browser, with layers, masks and PSD files. Free with ads.",use:"Photo editing, mock-ups, opening .psd files"},
-    {n:"Piskel",c:"image",url:"https://www.piskelapp.com/",rep:"Pixel art apps",acct:"none",phone:false,
+    {n:"Piskel",c:"image",url:"https://www.piskelapp.com/",rep:"Pixel art apps",acct:"none",phone:false,chk:"Term 4, 2026",
      d:"Draw pixel art and simple frame animations, then export a GIF or sprite sheet.",use:"Icons, pixel art, short animations"},
-    {n:"Unsplash",c:"image",url:"https://unsplash.com/",rep:"Stock photo sites",acct:"none",phone:true,
+    {n:"Unsplash",c:"image",url:"https://unsplash.com/",rep:"Stock photo sites",acct:"none",phone:true,chk:"Term 4, 2026",
      d:"High-quality photos you can download and use for free. Skip any marked Unsplash+, which are paid. Note the photographer in your folio.",use:"Reference images, backgrounds, mock-ups"},
-    {n:"Vectorpea",c:"vector",url:"https://www.vectorpea.com/",rep:"Illustrator",acct:"none",phone:false,
+    {n:"Vectorpea",c:"vector",url:"https://www.vectorpea.com/",rep:"Illustrator",acct:"none",phone:false,chk:"Term 4, 2026",
      d:"A free vector editor from the makers of Photopea. Opens SVG, AI and PDF files.",use:"Logos, icons, illustration"},
-    {n:"Graphite",c:"vector",url:"https://graphite.art/",rep:"Illustrator",acct:"none",phone:false,
+    {n:"Graphite",c:"vector",url:"https://graphite.art/",rep:"Illustrator",acct:"none",phone:false,chk:"Term 4, 2026",
      d:"An open-source vector and image editor that runs in the browser. Still in development, so save often.",use:"Vector shapes, experimental graphics"},
-    {n:"SVG-Edit",c:"vector",url:"https://svgedit.netlify.app/index.html",rep:"Illustrator (basic)",acct:"none",phone:false,
+    {n:"SVG-Edit",c:"vector",url:"https://svgedit.netlify.app/index.html",rep:"Illustrator (basic)",acct:"none",phone:false,chk:"Term 4, 2026",
      d:"A simple, open-source SVG editor. Light enough for the oldest laptops.",use:"Simple icons, quick vector edits"},
-    {n:"Figma",c:"layout",url:"https://www.figma.com/education/",rep:"InDesign / XD",acct:"free",phone:false,
+    {n:"Figma",c:"layout",url:"https://www.figma.com/education/",rep:"InDesign / XD",acct:"free",phone:false,chk:"Term 4, 2026",
      d:"Industry-standard design and prototyping. Free education plan for students and teachers.",use:"Layouts, app screens, prototypes"},
-    {n:"Penpot",c:"layout",url:"https://penpot.app/",rep:"Figma / XD",acct:"free",phone:false,
+    {n:"Penpot",c:"layout",url:"https://penpot.app/",rep:"Figma / XD",acct:"free",phone:false,chk:"Term 4, 2026",
      d:"An open-source alternative to Figma. Free to use, with no paid tier needed.",use:"Layouts, app screens, prototypes"},
-    {n:"Canva for Education",sl:"Canva",c:"layout",url:"https://www.canva.com/education/students/",rep:"InDesign (quick layouts)",acct:"school",phone:true,
+    {n:"Canva for Education",sl:"Canva",c:"layout",url:"https://www.canva.com/education/students/",rep:"InDesign (quick layouts)",acct:"school",phone:true,chk:"Term 4, 2026",
      d:"Free for school students through your teacher's class. Good for fast layouts and presentations.",use:"Posters, presentations, quick layouts"},
-    {n:"Adobe Express",c:"layout",url:"https://www.adobe.com/express/",rep:"InDesign / Spark",acct:"school",phone:true,
+    {n:"Adobe Express",c:"layout",url:"https://www.adobe.com/express/",rep:"InDesign / Spark",acct:"school",phone:true,chk:"Term 4, 2026",
      d:"Adobe's browser design tool, available through the Department licence with your school account.",use:"Social posts, flyers, quick layouts"},
-    {n:"Excalidraw",c:"layout",url:"https://excalidraw.com/",rep:"Sketching on paper",acct:"none",phone:true,
+    {n:"Excalidraw",c:"layout",url:"https://excalidraw.com/",rep:"Sketching on paper",acct:"none",phone:true,chk:"Term 4, 2026",
      d:"A hand-drawn style whiteboard for wireframes and early ideas. Share a link to sketch together.",use:"Thumbnails, wireframes, brainstorming"},
-    {n:"Google Fonts",c:"type",url:"https://fonts.google.com/",rep:"Paid font libraries",acct:"none",phone:true,
+    {n:"Google Fonts",c:"type",url:"https://fonts.google.com/",rep:"Paid font libraries",acct:"none",phone:true,chk:"Term 4, 2026",
      d:"Hundreds of open-licence typefaces, free to download and use in any project.",use:"Choosing and pairing typefaces"},
-    {n:"Fontshare",c:"type",url:"https://www.fontshare.com/",rep:"Paid font libraries",acct:"none",phone:true,
+    {n:"Fontshare",c:"type",url:"https://www.fontshare.com/",rep:"Paid font libraries",acct:"none",phone:true,chk:"Term 4, 2026",
      d:"A free collection of quality typefaces from the Indian Type Foundry.",use:"Distinctive display and text faces"},
-    {n:"Coolors",c:"colour",url:"https://coolors.co/",rep:"Colour swatch books",acct:"none",phone:true,
+    {n:"Coolors",c:"colour",url:"https://coolors.co/",rep:"Colour swatch books",acct:"none",phone:true,chk:"Term 4, 2026",
      d:"Generate, lock and tweak colour palettes, or pull a palette from a photo.",use:"Colour palettes, checking contrast"},
-    {n:"Realtime Colors",c:"colour",url:"https://www.realtimecolors.com/",rep:"Testing colours in a mock-up",acct:"none",phone:true,
+    {n:"Realtime Colors",c:"colour",url:"https://www.realtimecolors.com/",rep:"Testing colours in a mock-up",acct:"none",phone:true,chk:"Term 4, 2026",
      d:"Pick text, background and accent colours and see them on a real web page straight away. Export the palette when you're happy.",use:"Testing palettes on a layout, picking fonts"},
-    {n:"Spline",c:"3d",url:"https://spline.design/",rep:"Cinema 4D / Blender",acct:"free",phone:false,
+    {n:"Spline",c:"3d",url:"https://spline.design/",rep:"Cinema 4D / Blender",acct:"free",phone:false,chk:"Term 4, 2026",
      d:"Make 3D shapes, scenes and simple interactions in the browser. Free plan available.",use:"3D renders, product concepts"},
-    {n:"Tinkercad",c:"3d",url:"https://www.tinkercad.com/",rep:"CAD software",acct:"school",phone:false,
+    {n:"Tinkercad",c:"3d",url:"https://www.tinkercad.com/",rep:"CAD software",acct:"school",phone:false,chk:"Term 4, 2026",
      d:"Simple 3D modelling from Autodesk. Teachers can set up class sign-ins without student emails.",use:"Product models, packaging forms"},
-    {n:"Jitter",c:"3d",url:"https://jitter.video/",rep:"After Effects",acct:"free",phone:false,
+    {n:"Jitter",c:"3d",url:"https://jitter.video/",rep:"After Effects",acct:"free",phone:false,chk:"Term 4, 2026",
      d:"Animate type and shapes in the browser and export video or GIF. Free plan available.",use:"Motion graphics, animated type"}
   ];
   var ACCT = {none:"No account needed",school:"School sign-in",free:"Free account needed"};
@@ -511,11 +516,13 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:10px 24px;justify-content:space-bet
 
   function hash(s){ var h=0; for(var i=0;i<s.length;i++){ h=(h*31+s.charCodeAt(i))|0; } return Math.abs(h); }
 
-  function render(){
+  // focusName: spine to refocus after the row is rebuilt, so keyboard users keep their place
+  function render(focusName){
     Array.prototype.forEach.call(chips.children, function(b){ b.setAttribute("aria-pressed", b.dataset.k===state.cat ? "true":"false"); });
     var list = TOOLS.filter(function(t){
       return (state.cat==="all"||t.c===state.cat) && (!state.phone||t.phone) && (!state.open||t.acct==="none");
     });
+    var sel = list.filter(function(t){return t.n===state.sel;})[0] || list[0];
     row.innerHTML="";
     if(!list.length){
       row.innerHTML='<p class="empty">No tools match those filters yet. Untick one, or suggest a tool to the panel.</p>';
@@ -529,18 +536,30 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:10px 24px;justify-content:space-bet
       b.style.height = Math.max(220 + h%70, 150 + label.length*11 + (t.phone?26:0)) + "px";
       b.style.width = (44 + h%16) + "px";
       b.setAttribute("aria-pressed", state.sel===t.n ? "true":"false");
+      b.tabIndex = t===sel ? 0 : -1; // one Tab stop for the shelf; arrows move between spines
       b.setAttribute("aria-label", t.n + ", " + CATS[t.c].label + ", replaces " + t.rep + ". " + ACCT[t.acct] + (t.phone ? ". Works on a phone." : "."));
       var tags = '<span class="tag" title="'+ACCT[t.acct]+'">' + (t.acct==="none"?ICON.open:(t.acct==="school"?ICON.school:'<span style="font-size:11px;font-weight:800;color:#1C1D2B">@</span>')) + '</span>';
       if(t.phone) tags = '<span class="tag" title="Works on a phone">'+ICON.phone+'</span>' + tags;
       b.innerHTML = '<span class="band b1" aria-hidden="true"></span><span class="title" aria-hidden="true">'+label+'</span><span class="band b2" aria-hidden="true"></span><span class="tags" aria-hidden="true">'+tags+'</span>';
-      b.addEventListener("click", function(){ state.sel=t.n; render(); });
+      b.addEventListener("click", function(){ state.sel=t.n; render(t.n); });
       row.appendChild(b);
+      if(t.n===focusName) b.focus();
     });
     count.textContent = list.length + (list.length===1?" tool":" tools");
-    var sel = list.filter(function(t){return t.n===state.sel;})[0] || list[0];
-    if(sel && !state.sel){ /* show first without marking pulled */ }
     showCard(sel);
   }
+
+  row.addEventListener("keydown", function(e){
+    var spines = Array.prototype.slice.call(row.querySelectorAll(".spine")), i = spines.indexOf(document.activeElement), j;
+    if(i<0) return;
+    if(e.key==="ArrowRight") j = Math.min(i+1, spines.length-1);
+    else if(e.key==="ArrowLeft") j = Math.max(i-1, 0);
+    else if(e.key==="Home") j = 0;
+    else if(e.key==="End") j = spines.length-1;
+    else return;
+    e.preventDefault();
+    spines[i].tabIndex = -1; spines[j].tabIndex = 0; spines[j].focus();
+  });
 
   function showCard(t){
     if(!t){ card.innerHTML='<p style="margin:0">Pick a spine to see what the tool does.</p>'; return; }
@@ -550,11 +569,25 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:10px 24px;justify-content:space-bet
       '<a class="btn" href="'+t.url+'" target="_blank" rel="noopener">Open '+t.n+'<span class="sr"> (opens in a new tab)</span></a></div>'+
       '<dl><dt>Instead of</dt><dd>'+t.rep+'</dd><dt>Good for</dt><dd>'+t.use+'</dd>'+
       '<dt>Account</dt><dd>'+ACCT[t.acct]+'</dd><dt>On a phone</dt><dd>'+(t.phone?"Works well":"Use a laptop")+'</dd>'+
-      '<dt>Cost</dt><dd>Free</dd><dt>Last checked</dt><dd>Term 4, 2026</dd></dl>';
+      '<dt>Cost</dt><dd>Free</dd><dt>Last checked</dt><dd>'+t.chk+'</dd></dl>';
   }
 
   document.getElementById("askBtn").addEventListener("click", function(){ document.getElementById("askNote").hidden=false; });
   document.getElementById("shareBtn").addEventListener("click", function(){ document.getElementById("shareNote").hidden=false; });
+  // theme: follows the system until the toggle is used, then remembers the choice
+  var themeBtn = document.getElementById("themeBtn"), root = document.documentElement,
+      mq = window.matchMedia("(prefers-color-scheme: dark)");
+  function isDark(){ return root.dataset.theme ? root.dataset.theme==="dark" : mq.matches; }
+  function syncTheme(){ themeBtn.setAttribute("aria-pressed", isDark() ? "true":"false"); }
+  themeBtn.addEventListener("click", function(){
+    var t = isDark() ? "light" : "dark";
+    root.dataset.theme = t;
+    try{ localStorage.setItem("os-theme", t); }catch(e){}
+    syncTheme();
+  });
+  if(mq.addEventListener) mq.addEventListener("change", syncTheme); else if(mq.addListener) mq.addListener(syncTheme);
+  syncTheme();
+
   document.getElementById("toolTotal").textContent = TOOLS.length;
   render();
 })();
