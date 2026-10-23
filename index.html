@@ -12,6 +12,7 @@
 :root{
   --paper:#FAFAF7; --paper-2:#F0F0EA; --ink:#1C1D2B; --ink-2:#4E5163; --line:#1C1D2B;
   --pink:#FF6FAE; --yellow:#FFD93D; --blue:#2F5FE8; --green:#2FBF7A; --orange:#FF7A33; --purple:#6C47E0;
+  --blue-soft:#7B9BF5; --purple-soft:#A48BF0; /* spine shades: dark text passes 4.5:1 */
   --on-dark:#FFFFFF; --focus:#2F5FE8;
   --font:"Bricolage Grotesque", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --wrap:1180px; --gutter:clamp(16px,4vw,40px);
@@ -73,25 +74,23 @@ nav.main a:hover{border-color:var(--pink)}
 .shelf::after{content:"";flex:0 0 8px}
 .plank{height:16px;background:var(--ink);border-radius:2px;margin-top:-1px;position:relative}
 .plank::after{content:"";position:absolute;left:0;right:0;top:16px;height:10px;background:repeating-linear-gradient(90deg,var(--ink) 0 2px,transparent 2px 8px);opacity:.18}
-.spine{flex:0 0 auto;scroll-snap-align:start;border:2px solid var(--line);border-bottom:0;border-radius:5px 5px 0 0;cursor:pointer;font:inherit;color:var(--ink);
+.spine{flex:0 0 auto;scroll-snap-align:start;border:2px solid var(--line);border-bottom:0;border-radius:5px 5px 0 0;cursor:pointer;font:inherit;color:#1C1D2B;
   display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:14px 0 10px;position:relative;
   transition:transform .25s cubic-bezier(.2,.8,.2,1)}
 .spine:hover{transform:translateY(-10px)}
 .spine[aria-pressed="true"]{transform:translateY(-26px)}
 .spine .title{writing-mode:vertical-rl;transform:rotate(180deg);font-weight:800;font-size:18px;letter-spacing:-.01em;white-space:nowrap}
-.spine .band{display:block;align-self:stretch;height:8px;background:var(--ink);opacity:.9;flex:0 0 auto}
+.spine .band{display:block;align-self:stretch;height:8px;background:#1C1D2B;opacity:.9;flex:0 0 auto}
 .spine .band.b1{margin-bottom:12px}
 .spine .band.b2{height:3px;margin:10px 0 8px}
 .spine .title{flex:1 1 auto;display:flex;align-items:center;overflow:hidden}
 .spine .tags{display:flex;flex-direction:column;gap:4px;align-items:center}
-.spine .tag{width:22px;height:22px;border-radius:50%;background:var(--paper);border:1.5px solid var(--ink);display:grid;place-items:center}
+.spine .tag{width:22px;height:22px;border-radius:50%;background:#FAFAF7;border:1.5px solid #1C1D2B;display:grid;place-items:center}
 .spine .tag svg{width:13px;height:13px}
 .spine.dots{background-image:radial-gradient(rgba(28,29,43,.22) 1.2px, transparent 1.4px);background-size:7px 7px}
-.c-image{background-color:var(--pink)} .c-vector{background-color:var(--blue);color:#fff}
+.c-image{background-color:var(--pink)} .c-vector{background-color:var(--blue-soft)}
 .c-layout{background-color:var(--yellow)} .c-type{background-color:var(--orange)}
-.c-colour{background-color:var(--green)} .c-3d{background-color:var(--purple);color:#fff}
-.c-vector .band,.c-3d .band{background:#fff}
-.spine.c-vector, .spine.c-3d{border-color:var(--line)}
+.c-colour{background-color:var(--green)} .c-3d{background-color:var(--purple-soft)}
 .legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:14px;font-size:14px;color:var(--ink-2)}
 .legend span{display:inline-flex;align-items:center;gap:6px}
 .legend i{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--ink);background:var(--paper);display:grid;place-items:center}
@@ -121,9 +120,13 @@ section.block{padding:clamp(56px,9vw,104px) 0 0}
 
 /* Reading room */
 .room{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
-.ref{border:2px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:8px;text-decoration:none;position:relative;min-height:190px;transition:transform .2s}
-.ref:hover{transform:rotate(-1deg) translateY(-3px)}
-.ref:nth-child(3n+2):hover{transform:rotate(1deg) translateY(-3px)}
+.ref{border:2px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:8px;text-decoration:none;position:relative;min-height:190px;transition:transform .2s;--tilt:-1deg}
+/* a 5-step cycle never lines up with the 1–4 grid columns, so neighbours tilt differently */
+.ref:nth-child(5n+2){--tilt:1.2deg}
+.ref:nth-child(5n+3){--tilt:-.6deg}
+.ref:nth-child(5n+4){--tilt:.8deg}
+.ref:nth-child(5n){--tilt:-1.4deg}
+.ref:hover,.ref:focus-visible{transform:rotate(var(--tilt)) translateY(-3px)}
 .ref h3{margin:0;font-size:22px;letter-spacing:-.02em;line-height:1.1}
 .ref p{margin:0;color:var(--ink-2);font-size:16px}
 .ref .meta{margin-top:auto;display:flex;flex-wrap:wrap;gap:6px}
@@ -131,6 +134,8 @@ section.block{padding:clamp(56px,9vw,104px) 0 0}
 .pill.y{background:var(--yellow);color:#1C1D2B;border-color:#1C1D2B}
 .pill.g{background:var(--green);color:#1C1D2B;border-color:#1C1D2B}
 .ref .by{font-size:13px;color:var(--ink-2)}
+.ref .pick{color:var(--ink);font-weight:800;display:inline-flex;align-items:center;gap:6px}
+.ref .pick::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--pink);border:1.5px solid var(--line)}
 
 /* QOTW */
 .qotw{display:grid;gap:22px}
@@ -210,6 +215,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:10px 24px;justify-content:space-bet
 }
 @media (prefers-reduced-motion: reduce){
   *{transition:none!important;scroll-behavior:auto!important}
+  .ref:hover,.ref:focus-visible{transform:none}
 }
 </style>
 </head>
@@ -269,7 +275,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:10px 24px;justify-content:space-bet
     <section class="block" id="reading-room" aria-labelledby="rr-title">
       <div class="sec-head">
         <h2 id="rr-title">Reading Room</h2>
-        <p>Good design you can see for free. Collections, archives and studios picked by the student panel, with places in Melbourne you can visit without paying.</p>
+        <p>Good design you can see for free. Collections, archives and studios picked by the student panel and the VCD team, with places in Melbourne you can visit without paying.</p>
       </div>
       <div class="room">
         <a class="ref" href="https://www.ngv.vic.gov.au/explore/collection/" target="_blank" rel="noopener">
@@ -307,6 +313,12 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:10px 24px;justify-content:space-bet
           <p>The Australian Graphic Design Association. See award-winning work from designers working here now.</p>
           <div class="meta"><span class="pill">Australian design</span><span class="pill">Careers</span></div>
           <span class="by">Picked by the student panel</span>
+        </a>
+        <a class="ref" href="https://archives.design/" target="_blank" rel="noopener">
+          <h3>Archives.Design</h3>
+          <p>Design annuals, posters, type specimens and books, scanned on the Internet Archive and sorted by category. Some need a free Internet Archive account to borrow.</p>
+          <div class="meta"><span class="pill">Archive</span><span class="pill">Books</span></div>
+          <span class="by pick">Teacher's pick</span>
         </a>
       </div>
     </section>
@@ -433,11 +445,11 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:10px 24px;justify-content:space-bet
   };
   var CATS = {
     image:{label:"Image editing",cls:"c-image",col:"var(--pink)"},
-    vector:{label:"Vector",cls:"c-vector",col:"var(--blue)"},
+    vector:{label:"Vector",cls:"c-vector",col:"var(--blue-soft)"},
     layout:{label:"Layout",cls:"c-layout",col:"var(--yellow)"},
     type:{label:"Type",cls:"c-type",col:"var(--orange)"},
     colour:{label:"Colour",cls:"c-colour",col:"var(--green)"},
-    "3d":{label:"3D & motion",cls:"c-3d",col:"var(--purple)"}
+    "3d":{label:"3D & motion",cls:"c-3d",col:"var(--purple-soft)"}
   };
   // account: "none" | "school" | "free"
   var TOOLS = [
@@ -446,18 +458,18 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:10px 24px;justify-content:space-bet
     {n:"Piskel",c:"image",url:"https://www.piskelapp.com/",rep:"Pixel art apps",acct:"none",phone:false,
      d:"Draw pixel art and simple frame animations, then export a GIF or sprite sheet.",use:"Icons, pixel art, short animations"},
     {n:"Unsplash",c:"image",url:"https://unsplash.com/",rep:"Stock photo sites",acct:"none",phone:true,
-     d:"High-quality photos you can download and use for free. Note the photographer in your folio.",use:"Reference images, backgrounds, mock-ups"},
+     d:"High-quality photos you can download and use for free. Skip any marked Unsplash+, which are paid. Note the photographer in your folio.",use:"Reference images, backgrounds, mock-ups"},
     {n:"Vectorpea",c:"vector",url:"https://www.vectorpea.com/",rep:"Illustrator",acct:"none",phone:false,
      d:"A free vector editor from the makers of Photopea. Opens SVG, AI and PDF files.",use:"Logos, icons, illustration"},
-    {n:"Graphite",c:"vector",url:"https://graphite.rs/",rep:"Illustrator",acct:"none",phone:false,
+    {n:"Graphite",c:"vector",url:"https://graphite.art/",rep:"Illustrator",acct:"none",phone:false,
      d:"An open-source vector and image editor that runs in the browser. Still in development, so save often.",use:"Vector shapes, experimental graphics"},
-    {n:"SVG-Edit",c:"vector",url:"https://svgedit.netlify.app/editor/index.html",rep:"Illustrator (basic)",acct:"none",phone:false,
+    {n:"SVG-Edit",c:"vector",url:"https://svgedit.netlify.app/index.html",rep:"Illustrator (basic)",acct:"none",phone:false,
      d:"A simple, open-source SVG editor. Light enough for the oldest laptops.",use:"Simple icons, quick vector edits"},
     {n:"Figma",c:"layout",url:"https://www.figma.com/education/",rep:"InDesign / XD",acct:"free",phone:false,
      d:"Industry-standard design and prototyping. Free education plan for students and teachers.",use:"Layouts, app screens, prototypes"},
     {n:"Penpot",c:"layout",url:"https://penpot.app/",rep:"Figma / XD",acct:"free",phone:false,
      d:"An open-source alternative to Figma. Free to use, with no paid tier needed.",use:"Layouts, app screens, prototypes"},
-    {n:"Canva for Education",sl:"Canva",c:"layout",url:"https://www.canva.com/education/",rep:"InDesign (quick layouts)",acct:"school",phone:true,
+    {n:"Canva for Education",sl:"Canva",c:"layout",url:"https://www.canva.com/education/students/",rep:"InDesign (quick layouts)",acct:"school",phone:true,
      d:"Free for school students through your teacher's class. Good for fast layouts and presentations.",use:"Posters, presentations, quick layouts"},
     {n:"Adobe Express",c:"layout",url:"https://www.adobe.com/express/",rep:"InDesign / Spark",acct:"school",phone:true,
      d:"Adobe's browser design tool, available through the Department licence with your school account.",use:"Social posts, flyers, quick layouts"},
@@ -469,8 +481,8 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:10px 24px;justify-content:space-bet
      d:"A free collection of quality typefaces from the Indian Type Foundry.",use:"Distinctive display and text faces"},
     {n:"Coolors",c:"colour",url:"https://coolors.co/",rep:"Colour swatch books",acct:"none",phone:true,
      d:"Generate, lock and tweak colour palettes, or pull a palette from a photo.",use:"Colour palettes, checking contrast"},
-    {n:"Adobe Color",c:"colour",url:"https://color.adobe.com/",rep:"Colour wheels",acct:"none",phone:true,
-     d:"Build palettes using colour harmony rules and check them for accessibility.",use:"Colour theory, harmony, contrast"},
+    {n:"Realtime Colors",c:"colour",url:"https://www.realtimecolors.com/",rep:"Testing colours in a mock-up",acct:"none",phone:true,
+     d:"Pick text, background and accent colours and see them on a real web page straight away. Export the palette when you're happy.",use:"Testing palettes on a layout, picking fonts"},
     {n:"Spline",c:"3d",url:"https://spline.design/",rep:"Cinema 4D / Blender",acct:"free",phone:false,
      d:"Make 3D shapes, scenes and simple interactions in the browser. Free plan available.",use:"3D renders, product concepts"},
     {n:"Tinkercad",c:"3d",url:"https://www.tinkercad.com/",rep:"CAD software",acct:"school",phone:false,
